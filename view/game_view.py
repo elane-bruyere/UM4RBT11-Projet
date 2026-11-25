@@ -8,36 +8,33 @@ from model.game_model import GameModel
  
  
 class GameView:
-    '''Class representing the game view.
+    '''Class responsible for rendering the game view.
+    Attributes:
+        screen (pygame.Surface): The main display surface for the game.
+        font (pygame.font.Font): The font used for rendering text.      
         
-        Attributes:
-            screen (pygame.Surface): The main display surface for the game.
-            font (pygame.font.Font): The font used for rendering text in the game.
-        Methods:
-            draw(model: GameModel): Draws the current state of the game based on the provided model.
-            _draw_menu(model: GameModel): Draws the main menu of the game.
-            _draw_circuit(model: GameModel): Draws the circuit selection menu.
-            _draw_racing(model: GameModel): Draws the racing state of the game, including the circuit and cars.
-    '''
+    Methods:
+        draw(model: GameModel) -> None: Draws the game view based on the current game model.
+        _draw_menu(model: GameModel) -> None: Draws the main menu
+        _draw_circuit(model: GameModel) -> None: Draws the circuit selection menu
+        _draw_racing(model: GameModel) -> None: Draws the racing view, including the circuit and cars.'''
     
-    
+ 
     def __init__(self, screen: pygame.Surface):
-        '''Initializes the GameView with the provided screen surface.
-            
-            Parameters:
-                screen (pygame.Surface): The main display surface for the game.
-        '''
+        '''Initializes the GameView with the given screen surface.
+        Parameters:
+            screen (pygame.Surface): The main display surface for the game.
+        Returns:
+            None'''
         self.screen = screen
         self.font = pygame.font.SysFont("Arial", 24)
  
- 
     def draw(self, model: GameModel) -> None:
-        '''Draws the current state of the game based on the provided model.
-            
-            Parameters:
-                model (GameModel): The game model containing the current state and data to be rendered.
-            Returns:
-                None'''
+        '''Draws the game view based on the current game model.
+        Parameters:
+            model (GameModel): The game model containing the current state, circuit, and cars information
+        Returns:
+            None'''
         self.screen.fill(COLOR_BG)
         if model.state == GameState.MENU:
             self._draw_menu(model)
@@ -49,14 +46,12 @@ class GameView:
             self._draw_racing(model)
         pygame.display.flip()
  
- 
     def _draw_menu(self, model: GameModel) -> None:
-        '''Dessine le menu principal du jeu
-            
-            Parametres : 
-            ------------
-            model: GameModel 
-            model du jeu 
+        '''Draws the main menu.
+        Parameters:
+            model (GameModel): The game model containing the current state and circuit information.
+        Returns:
+            None
         '''
         cx = WINDOW_WIDTH // 2
  
@@ -77,20 +72,20 @@ class GameView:
             self.screen.blit(text_surf, text_surf.get_rect(center=rect.center))
     
     
-    
     def _draw_circuit(self, model: GameModel) -> None: 
-        '''Dessine le menu de sélection du circuit
-        Parametres :
-        ------------
-        model: GameModel
-            model du jeu
-        '''
         cx = WINDOW_WIDTH // 2
+        ''' Draws the circuit selection menu.
+        Parameters:
+            model (GameModel): The game model containing the current state and circuit information.
+        Returns:
+            None
+        '''
         title_surf = self.font.render("Choose a circuit", True, COLOR_ACCENT)
         self.screen.blit(title_surf, title_surf.get_rect(center=(cx,100)))
 
         options = [("CIRCUIT 1 (Press 1)", GameState.RACING),
-                   ("CIRCUIT 2 (Press 2)", GameState.RACING)]
+                   ("CIRCUIT 2 (Press 2)", GameState.RACING),
+                   ("CIRCUIT 3 (Press 3)", GameState.RACING)]
 
         for i, (label, _) in enumerate(options):
             y = 320 + i * 80
@@ -104,12 +99,11 @@ class GameView:
  
  
     def _draw_racing(self, model: GameModel) -> None:
-        '''Dessine l'état de course du jeu, y compris le circuit et les voitures.
-        Parametres :
-        ------------
-        model: GameModel
-            model du jeu
-        '''
+        '''Draws the racing view, including the circuit and cars.
+        Parameters:
+            model (GameModel): The game model containing the current state, circuit, and cars information
+        Returns:
+            None'''
         if model.circuit is None:
             return
  
