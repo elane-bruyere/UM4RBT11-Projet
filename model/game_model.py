@@ -1,51 +1,37 @@
+# Kart-Engine v2.3
 import pygame
-from constants import GameState, GRID_ROWS, GRID_COLS, PLAYER_COLORS, C1_COLOR, C2_COLOR, C3_COLOR, CIRCUITS
+from constants import GameState, GRID_ROWS, GRID_COLS, PLAYER_COLORS, C1_COLOR, C2_COLOR, C3_COLOR, CIRCUITS, TOURS, TILE_SIZE
 from model.car import Car
 from model.circuit import Circuit
-from model.road_tile import RoadTile, IceTile, HerbeTile
-
-TILE_CLASSES = { #les lettres pour les matrices de circuits dans le fichier constantes
+from model.road_tile import (RoadTile, IceTile, HerbeTile, LigneArrivee, PointPassage, BonusPassage, VideTile)
+ 
+TILE_CLASSES = { 
     "R": RoadTile,
     "I": IceTile,
-    "H": HerbeTile
+    "H": HerbeTile,
+    "L": LigneArrivee,
+    "C": PointPassage,
+    "B": BonusPassage,
+    "V": VideTile
 }
  
+BLOCK_CLASSES = {
+    
+}
  
 class GameModel:
-    '''Class representing the game model.
-    
-    Attributes:
-        state (GameState): The current state of the game.
-        circuit (Circuit | None): The current circuit in the game.
-        cars (list[Car]): The cars in the game (index 0 = player 1, index 1 = player 2).
-        selected_circuit (int): Index, in CIRCUITS, of the circuit that will be loaded.
-        
-    Methods:
-        load_circuit(choice): Loads a new circuit and spawns the cars.
-        select_next_circuit(): Selects the next circuit of the menu (wraps around).
-        select_previous_circuit(): Selects the previous circuit of the menu (wraps around).
-        build_grid(layout, name): Builds the grid of tiles from the matrix of a circuit.
-        spawn_cars(starts): Spawns the two cars on the starting positions of the circuit.
-        update(): Updates the game state, including the cars' positions if racing.
-        nokey(): Stops the cars if no key is pressed.
-    '''
     
     def __init__(self):
-        '''Initializes the GameModel with default values.
-        Attributes:
-            state (GameState): The initial state of the game, set to MENU.
-            circuit (Circuit | None): The current circuit, initially None.
-            cars (list[Car]): The list of cars in the game, initially empty.
-            selected_circuit (int): The circuit to load, initially the first one.
         
-        
-        Returns:
-            None
-        '''
         self.state: str = GameState.MENU
         self.circuit: Circuit | None = None
         self.cars: list[Car] = []
         self.selected_circuit: int = 0
+        self.pointpassage: list[set] = []
+        self.passed: list[set] = []
+        self.tours: list[int] = []
+        self.on_finish: list[bool] = []
+        self.winner: int | None = None
  
     def load_circuit(self, choice=None) -> None:
         '''Loads a new circuit based on the player's choice and spawns the cars.
@@ -70,6 +56,11 @@ class GameModel:
         grid, starts = self.build_grid(layout, name)
         self.circuit = Circuit(grid=grid)
         self.spawn_cars(starts)
+        self.pointpassage = self.find_point_passage()
+        self.passed = [set() for _ in self.cars]
+        self.tours = [0 for _ in self.cars]
+        self.on_finish = [False for _ in self.cars]
+        self.winner = None
         
     def select_next_circuit(self) -> None:
         '''Selects the next circuit in the menu, wrapping around if necessary.
@@ -111,7 +102,10 @@ class GameModel:
  
         if "1" not in starts or "2" not in starts:
             raise ValueError(f"{name} : il faut un bloc '1' et un bloc '2'")
+    
         return grid, starts
+    
+        
  
     def spawn_cars(self, starts: dict) -> None:
         '''Spawns the two cars on the starting positions of the circuit.
@@ -121,20 +115,67 @@ class GameModel:
             None'''
         self.cars = [Car(*starts["1"], PLAYER_COLORS[0]), #lieu de spawn 
                      Car(*starts["2"], PLAYER_COLORS[1])]
- 
+        
+        
     def update(self) -> None:
         '''Updates the game state, including the cars' positions if racing.
         Returns:
             None'''
         if self.state != GameState.RACING or self.circuit is None:
             return
+        if self.winner is not None:
+            return 
         for car in self.cars:
-            # La voiture prend les propriétés du terrain sur lequel elle roule
+
             tile = self.circuit.get_tile_at_pixel(car.x, car.y)
             if tile is not None:
                 car.apply_terrain(tile)
             car.update_position()
-            
+        self.update_laps()
+ 
+    def find_point_passage(self) -> list[set]:
+        '''Regroupe les cases PointPassage qui se touchent : chaque groupe est un point de passage.
+        Returns:
+            list[set]: Les points de passage, chacun étant un ensemble de cases (col, ligne).'''
+        cells = {(col, row)
+                 for row, line in enumerate(self.circuit.grid)
+                 for col, tile in enumerate(line)
+                 if isinstance(tile, PointPassage) and not isinstance(tile, LigneArrivee)}
+        groups = []
+        while cells:
+            first = cells.pop()
+            group = {first}
+            to_visit = [first]
+            while to_visit:
+                col, row = to_visit.pop()
+                for neighbour in ((col + 1, row), (col - 1, row), (col, row + 1), (col, row - 1)):
+                    if neighbour in cells:
+                        cells.remove(neighbour)
+                        group.add(neighbour)
+                        to_visit.append(neighbour)
+            groups.append(group)
+        return groups
+ 
+    def update_laps(self) -> None:
+        '''Compte un tour quand une voiture entre sur la ligne d'arrivée après avoir franchi tous
+        les points de passage ; la première à atteindre TOURS tours gagne la course.
+        Returns:
+            None'''
+        for i, car in enumerate(self.cars):
+            tile = self.circuit.get_tile_at_pixel(car.x, car.y)
+            cell = (int(car.x // TILE_SIZE), int(car.y // TILE_SIZE))
+            on_finish = isinstance(tile, LigneArrivee)
+ 
+            if isinstance(tile, PointPassage) and not on_finish:
+                for number, group in enumerate(self.pointpassage):
+                    if cell in group:
+                        self.passed[i].add(number)
+            if on_finish and not self.on_finish[i] and len(self.passed[i]) == len(self.pointpassage):
+                self.tours[i] += 1
+                self.passed[i].clear()
+                if self.tours[i] >= TOURS and self.winner is None:
+                    self.winner = i
+            self.on_finish[i] = on_finish
             
     
             
@@ -149,4 +190,3 @@ class GameModel:
                 car.vx = 0.0
                 car.vy = 0.0
  
-            

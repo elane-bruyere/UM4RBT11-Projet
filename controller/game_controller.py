@@ -145,6 +145,7 @@ class GameController:
         Returns:
             None'''
         self.view.draw(self.model)
+    
  
     def quit(self) -> None:
         '''Exits the game and closes the application.

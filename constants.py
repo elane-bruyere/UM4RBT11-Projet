@@ -14,13 +14,11 @@ CAR_HEIGHT = 50
 SPEED_MAX = CAR_ACCELERATION*100
 CAR_ANGULAR_DECAY = 1.1
 
-GRIP_SCALE = 0.9
-
 CAR_MAX_STEERING = 20     # max de comment ça tourne 
 CAR_STEERING_SPEED = 2    # vitesse de comment ça tourne
 CAR_WHEELBASE = 40        # longueur entre l'anavant et l'arreiere 
 
-PLAYER_COLORS = [(255, 0, 0), (180, 39, 245)]   # rouge -> 1 et violetttt -> 2 c'est parce que pygame fait automatiquement une voiture rouge et pk pas en faire une d'une autre couleur
+PLAYER_COLORS = [(255, 0, 0), (45, 87, 36)]   # rouge -> 1 et vertt -> 2 c'est parce que pygame fait automatiquement une voiture rouge et pk pas en faire une d'une autre couleur
 
 CAR_BRAKE_FORCE = 0.1      # force de freinage
 CAR_AIR_FRICTION = 0.015   # frottements de l'air
@@ -35,9 +33,9 @@ ICE_GRIP = 0.012            # frottements de la glace
 ICE_DRIFT_FRICTION = 0.001  # frottements en dérapage sur la glace
 ICE_TRACTION = 0.3          #facilité à freiner/accel
 
-HERBE_GRIP = 0.05            #frottements de l'herbe
-HERBE_DRIFT_FRICTION = 0.005 #frottements en dérapage sur l'herbe
-HERBE_TRACTION = 0.4         #facilité à freiner/accel
+HERBE_GRIP = 0.09           #frottements de l'herbe
+HERBE_DRIFT_FRICTION = 0.05 #frottements en dérapage sur l'herbe
+HERBE_TRACTION = 0.5         #facilité à freiner/accel
 
 class GameState:
     """Définit les différents états possibles du jeu
@@ -70,6 +68,7 @@ C2_COLOR = (30, 30, 100)
 
 C3_COLOR = (100, 30, 30)
 
+TOURS = 1
 
 CIRCUITS = [
     ("Circuit 1", [
@@ -78,36 +77,36 @@ CIRCUITS = [
         "RRRRRRRRRRRRRRRR",
         "RRRRRRRRRRRRRRRR",
         "RRRRRRRRRRRRRRRR",
+        "RRRRRRRCRRRRRRRR",
+        "RRRRRRRRRRRRRRRR",
+        "LLLLLLLLLLLLLLLL",
         "RRRRRRRRRRRRRRRR",
         "RRRRRRRRRRRRRRRR",
-        "RRRRRRRRRRRRRRRR",
-        "RRRRRRRRRRRRRRRR",
-        "RRRRRRRRRRRRRRRR",
-        "RRRRRRRRRRRRRRRR",
-        "RRRRRRRRRRRRRRRR",
+        "RRRRRVRRRRCRRRRR",
+        "RRRRRBBRRRRRRRRR",
     ]),
     ("Circuit 2", [
-        "RRRRRRRRRRRRRRRR",
-        "RRRRRRRRRRRRRRRR",
-        "RRRRRRRRRRRRRRRR",
+        "RRRRRRRRRLRRRRRR",
+        "RRRRRRRRVRRRRRRR",
+        "RRRRRCRRRRRRRRRR",
         "RRRRRRRRRRRRRRRR",
         "RRRRRRRRRRRRRRRR",
         "HHHHHHHHHHHHHHHH",
+        "HHHHHHHHCHHHHHHH",
         "HHHHHHHHHHHHHHHH",
         "HHHHHHHHHHHHHHHH",
-        "HHHHHHHHHHHHHHHH",
-        "RRRRRRRRRRRRRRRR",
+        "RRRRRBRRRRRCRRRR",
         "RR12RRRRRRRRRRRR",
         "RRRRRRRRRRRRRRRR",
     ]),
     ("Circuit 3", [
-        "RRRRRRRRRRRRRRRR",
-        "RRRRRRRRRRRRRRRR",
+        "RBRRRRRRRLRRRRRR",
+        "RRVRCRRRRRRRRRRR",
         "RRIIIIIIIIIIIIRR",
         "RRIIIIIIIIIIIIRR",
         "RRIIIIRRRRIIIIRR",
         "RRIIIIRRRRIIIIRR",
-        "RRIIIIRRRRIIIIRR",
+        "RRIIIIRRRCIIIIRR",
         "RRIIIIIIIIIIIIRR",
         "RRIIIIIIIIIIIIRR",
         "RRRRRRRRRRRRRRRR",

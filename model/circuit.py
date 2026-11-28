@@ -122,7 +122,7 @@ def build_circuit(layout: list, name: str = "circuit") -> tuple[list[list], dict
                 
             grid_row.append(tile)
         grid.append(grid_row)
- 
+     
     if "1" not in starts or "2" not in starts:
-        raise ValueError(f"{name} : il faut un bloc '1' et un bloc '2'")
+            raise ValueError(f"{name} : il faut un bloc '1' et un bloc '2'")
     return grid, starts

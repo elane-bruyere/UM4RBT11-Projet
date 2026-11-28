@@ -37,16 +37,16 @@ class GameView:
             None'''
         self.screen.fill(COLOR_BG)
         if model.state == GameState.MENU:
-            self._draw_menu(model)
+            self.draw_menu(model)
             
         if model.state == GameState.CIRCUIT:
-            self._draw_circuit(model)
+            self.draw_circuit(model)
             
         elif model.state == GameState.RACING:
-            self._draw_racing(model)
+            self.draw_racing(model)
         pygame.display.flip()
  
-    def _draw_menu(self, model: GameModel) -> None:
+    def draw_menu(self, model: GameModel) -> None:
         '''Draws the main menu.
         Parameters:
             model (GameModel): The game model containing the current state and circuit information.
@@ -72,7 +72,7 @@ class GameView:
             self.screen.blit(text_surf, text_surf.get_rect(center=rect.center))
     
     
-    def _draw_circuit(self, model: GameModel) -> None: 
+    def draw_circuit(self, model: GameModel) -> None: 
         cx = WINDOW_WIDTH // 2
         ''' Draws the circuit selection menu.
         Parameters:
@@ -98,7 +98,7 @@ class GameView:
             self.screen.blit(text_surf, text_surf.get_rect(center=rect.center))
  
  
-    def _draw_racing(self, model: GameModel) -> None:
+    def draw_racing(self, model: GameModel) -> None:
         '''Draws the racing view, including the circuit and cars.
         Parameters:
             model (GameModel): The game model containing the current state, circuit, and cars information
@@ -116,4 +116,17 @@ class GameView:
         for car in model.cars:
             surf, rect = car.get_rotated_sprite()
             self.screen.blit(surf, rect)
+            
+    def draw_race_info(self, model: GameModel) -> None:
+        
+        for i in range(len(model.cars)):
+            label = f"J{i + 1} : {model.laps[i]}/{LAPS} tours"
+            text = self.font.render(label, True, PLAYER_COLORS[i])
+            self.screen.blit(text, (10, 10 + i * 30))
+        if model.winner is not None:
+            banner = self.font.render(f"Joueur {model.winner + 1} VICTOIRE ! (Échap : retour au menu)",
+                                      True, COLOR_ACCENT)
+            self.screen.blit(banner, banner.get_rect(
+                center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)))
+    
  

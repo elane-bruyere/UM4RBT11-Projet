@@ -145,3 +145,99 @@ class HerbeTile:
             
         self.sprite = herbe_surface
         return self.sprite
+    
+    
+    
+class LigneArrivee(RoadTile):
+    
+    def __init__(self, col: int, row: int):
+            
+            self.col = col
+            self.row = row
+            self.grip = ROAD_GRIP
+            self.drift_friction = ROAD_DRIFT_FRICTION
+            self.traction = ROAD_TRACTION
+            self.block = None
+            self.sprite: pygame.Surface | None = None
+    
+ 
+    def get_sprite(self, tile_size: int = TILE_SIZE) -> pygame.Surface:
+        
+       
+        super().get_sprite(tile_size)  
+        font = pygame.font.SysFont("Arial", tile_size // 2, bold=True)
+        letter = font.render("L", True, (250, 55, 55))
+        self.sprite.blit(letter, letter.get_rect(center=(tile_size // 2, tile_size // 2)))
+    
+        return self.sprite
+    
+class PointPassage(RoadTile):
+    
+    def __init__(self, col: int, row: int):
+            
+            self.col = col
+            self.row = row
+            self.grip = ROAD_GRIP
+            self.drift_friction = ROAD_DRIFT_FRICTION
+            self.traction = ROAD_TRACTION
+            self.block = None
+            self.sprite: pygame.Surface | None = None
+    
+ 
+    def get_sprite(self, tile_size: int = TILE_SIZE) -> pygame.Surface:
+        
+        
+        super().get_sprite(tile_size)  
+        font = pygame.font.SysFont("Arial", tile_size // 2, bold=True)
+        letter = font.render("C", True, (250, 255, 255))
+        self.sprite.blit(letter, letter.get_rect(center=(tile_size // 2, tile_size // 2)))
+    
+        return self.sprite
+    
+class BonusPassage(RoadTile):
+    
+    def __init__(self, col: int, row: int):
+            
+            self.col = col
+            self.row = row
+            self.grip = ROAD_GRIP
+            self.drift_friction = ROAD_DRIFT_FRICTION
+            self.traction = ROAD_TRACTION
+            self.block = None
+            self.sprite: pygame.Surface | None = None
+    
+ 
+    def get_sprite(self, tile_size: int = TILE_SIZE) -> pygame.Surface:
+        
+       
+        super().get_sprite(tile_size)  
+        font = pygame.font.SysFont("Arial", tile_size // 2, bold=True)
+        letter = font.render("B", True, (250, 255, 255))
+        self.sprite.blit(letter, letter.get_rect(center=(tile_size // 2, tile_size // 2)))
+    
+        return self.sprite
+    
+class VideTile(RoadTile):
+    
+    def __init__(self, col: int, row: int):
+            
+            self.col = col
+            self.row = row
+            self.grip = ROAD_GRIP
+            self.drift_friction = ROAD_DRIFT_FRICTION
+            self.traction = ROAD_TRACTION
+            self.block = None
+            self.sprite: pygame.Surface | None = None
+    
+ 
+    def get_sprite(self, tile_size: int = TILE_SIZE) -> pygame.Surface:
+        
+        if self.sprite and self.sprite.get_width() == tile_size:
+                    return self.sprite
+        vide_surface = pygame.Surface((tile_size, tile_size))
+        vide_surface.fill((1, 5, 0))
+        pygame.draw.rect(vide_surface, (255, 255, 255), vide_surface.get_rect(), 2) 
+        self.sprite = vide_surface
+    
+        return self.sprite
+    

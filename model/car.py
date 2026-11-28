@@ -2,7 +2,7 @@ import pygame
 import math
 from constants import (
     CAR_ACCELERATION, CAR_WIDTH, CAR_HEIGHT, TILE_SIZE, CAR_MAX_STEERING, CAR_STEERING_SPEED, CAR_WHEELBASE, GRID_COLS, GRID_ROWS, CAR_BRAKE_FORCE, CAR_AIR_FRICTION,
-    ROAD_GRIP, ROAD_DRIFT_FRICTION, ROAD_TRACTION, DRIFT_GRIP_RATIO, GRIP_SCALE
+    ROAD_GRIP, ROAD_DRIFT_FRICTION, ROAD_TRACTION, DRIFT_GRIP_RATIO
 )
  
 
@@ -25,8 +25,6 @@ class Car:
               (the car turns left).
           steering_angle (float): The angle of the steering wheel in degrees.
               Positive means left, negative means right.
-          grip (float): Grip of the terrain under the car (before GRIP_SCALE): the maximum
-              lateral velocity the tires can cancel per frame. Below it the car holds the road.
           drift_friction (float): Share of the speed lost per frame while the car is drifting.
           traction (float): Coefficient applied to accelerating and braking (1 = full traction).
           is_drifting (bool): True while the car is drifting.
@@ -96,7 +94,7 @@ class Car:
         self.vx += hx * CAR_ACCELERATION * self.traction
         self.vy += hy * CAR_ACCELERATION * self.traction
  
-    def back_run(self) -> None: ##marche arrière
+    def back_run(self) -> None:
         '''Pushes the car backwards with an acceleration value (reverse).
         Returns:
             None
@@ -112,7 +110,7 @@ class Car:
         '''
         forward_speed = self.get_speed()
         if forward_speed > 0:
-            # On retire de la vitesse vers l'avant, sans jamais dépasser zéro
+            
             amount = min(forward_speed, CAR_BRAKE_FORCE * self.traction)
             hx, hy = self.get_heading()
             self.vx -= hx * amount
@@ -120,7 +118,7 @@ class Car:
         else:
             self.back_run()
  
-    def steer(self, direction: int) -> None: #change l'angle de braquage si +1 -> gauche; si -1 -> droite sinon -> aucune commande (avec 0)
+    def steer(self, direction: int) -> None: 
         '''Changes the steering angle (+1 left, -1 right, 0 recenter).
         Parameters:
             direction (int): The direction to steer. +1 for left, -1 for right, 0 for recentering.
@@ -131,12 +129,12 @@ class Car:
             self.steering_angle += direction * CAR_STEERING_SPEED
         elif abs(self.steering_angle) <= CAR_STEERING_SPEED:
             self.steering_angle = 0.0
-        else: #aucune commande donc 0 -> le volant revient progressivement vers le centre
-            self.steering_angle -= math.copysign(CAR_STEERING_SPEED, self.steering_angle) # le volant ne peut pas tourner plus loin que l'angle max def dans le fichier csts
+        else: 
+            self.steering_angle -= math.copysign(CAR_STEERING_SPEED, self.steering_angle) 
         self.steering_angle = max(-CAR_MAX_STEERING,
                                   min(CAR_MAX_STEERING, self.steering_angle))
  
-    def update_orientation(self) -> None: #fait tourner la voiture
+    def update_orientation(self) -> None: 
         '''Rotates the car according to its speed and steering angle.
         Returns:
             None
@@ -144,7 +142,7 @@ class Car:
         turn_rate = self.get_speed() * math.tan(math.radians(self.steering_angle)) / CAR_WHEELBASE
         self.angle += math.degrees(turn_rate)
  
-    def apply_friction(self) -> None: #freinage dû aux forces de frottements
+    def apply_friction(self) -> None: 
         '''Slows the car down progressively (air friction).
         Returns:
             None
@@ -155,20 +153,19 @@ class Car:
             self.vx = 0.0
             self.vy = 0.0
  
-    def apply_grip(self) -> None: #c'est ici que se joue le dérapage
+    def apply_grip(self) -> None: 
         '''Cancels the lateral velocity within the limit of the grip, and detects drifting.
         Returns:
             None
         '''
         hx, hy = self.get_heading()
         forward_speed = self.vx * hx + self.vy * hy
-        # Vitesse latérale = vitesse totale moins sa partie dans l'axe de la voiture
         lat_x = self.vx - forward_speed * hx
         lat_y = self.vy - forward_speed * hy
         lateral_speed = math.hypot(lat_x, lat_y)
-        max_grip = self.grip * GRIP_SCALE
+        max_grip = self.grip
         if self.is_drifting:
-            max_grip *= DRIFT_GRIP_RATIO   # pneus déjà en train de glisser : moins d'adhérence
+            max_grip *= DRIFT_GRIP_RATIO  
  
         self.is_drifting = lateral_speed > max_grip
         if lateral_speed > 0:
@@ -202,7 +199,7 @@ class Car:
         self.y += self.vy
         self.keep_on_screen()
  
-    def keep_on_screen(self) -> None: #pour que les voitures restent sur l'écran
+    def keep_on_screen(self) -> None:
         '''Prevents the car from leaving the map.
         Returns:
             None
@@ -223,13 +220,14 @@ class Car:
         surf = pygame.Surface((CAR_WIDTH, CAR_HEIGHT), pygame.SRCALPHA)
         pygame.draw.rect(surf, self.color, (0, 0, CAR_WIDTH,
                          CAR_HEIGHT), border_radius=5)
-        # Pare-brise : repère visuel pour reconnaître l'avant de la voiture
         pygame.draw.rect(surf, (255, 200, 200), (4, 4, CAR_WIDTH - 8, 12),
                          border_radius=3)
         return surf
  
-    def get_rotated_sprite(self) -> tuple[pygame.Surface, pygame.Rect]:# pygame tourne dans le sens trigonométrique, comme self.angle
+    def get_rotated_sprite(self) -> tuple[pygame.Surface, pygame.Rect]:
     
         rotated = pygame.transform.rotate(self.sprite, self.angle)
         rect = rotated.get_rect(center=(int(self.x), int(self.y)))
         return rotated, rect
+    
+    
